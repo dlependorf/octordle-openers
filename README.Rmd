@@ -2,7 +2,7 @@
 title: "Starting Words in Octordle"
 author: "Dan Lependorf"
 date: '2022-02-28'
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
