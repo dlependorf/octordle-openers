@@ -1,7 +1,3 @@
-Starting Words in Octordle
-================
-Dan Lependorf
-2022-02-28
 
 I know I know, a million people have already “solved” the best starting
 word for Wordle. But for that multiplying series of simultaneous

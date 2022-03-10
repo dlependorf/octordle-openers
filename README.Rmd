@@ -1,7 +1,4 @@
 ---
-title: "Starting Words in Octordle"
-author: "Dan Lependorf"
-date: '2022-02-28'
 output: github_document
 ---
 
