@@ -84,8 +84,9 @@ vector into a data frame, so that it’s easier to work with.
 ``` r
 split_words <- octordle_words %>%
     tibble(words=.) %>%
-    # This map() call inside of mutate() creates a second column of a special form: a list-column. Instead of
-    # a column where each entry is a single value, it's a column where each row holds a five-character vector.
+    # This map() call inside of mutate() creates a second column of a special form: a list-column.
+    # Instead of a column where each entry is a single value, it's a column where each row holds a
+    # five-character vector.
     mutate(letters=map(words, ~str_split(.x, "")[[1]]))
 
 split_words
@@ -183,22 +184,24 @@ opener_combinations <- tibble(word_1=list(),
                               word_2=list(),
                               word_3=list())
 
-# The basic idea here: for each word, remove those letters from the list of best letters, then see which
-# words can be constructed out of the remaining letters still available. Then repeat again for the second
-# word, to see if any words can be constructed out of the five letters that still remain.
+# The basic idea here: for each word, remove those letters from the list of best letters, then see
+# which words can be constructed out of the remaining letters still available. Then repeat again
+# for the second word, to see if any words can be constructed out of the five letters that still
+# remain.
 for (i in seq_len(nrow(best_words))) {
     word_1 <- best_words$letters[[i]]
     
     remaining_letters <- best_letters[!best_letters %in% word_1]
     remaining_words <- best_words %>%
-        # This filter call both removes all words that can't be spelled with the remaining letters, and also
-        # removes all words that come alphabetically before word_1. This is so we don't have duplicates
-        # (since a starter of A/B/C and a different starter of A/C/B are the same thing).
+        # This filter call both removes all words that can't be spelled with the remaining letters,
+        # and also removes all words that come alphabetically before word_1. This is so we don't
+        # have duplicates (since a starter of A/B/C and a different starter of A/C/B are the same
+        # thing).
         filter(row_number() > i,
                map_lgl(letters, ~all(.x %in% remaining_letters)))
     
-    # If there aren't any words that can be created out of the 10 remaining letters, just skip the rest of
-    # this loop iteration and go to the next one.
+    # If there aren't any words that can be created out of the 10 remaining letters, just skip the
+    # rest of this loop iteration and go to the next one.
     if (nrow(remaining_words)==0) {
         next
     }
@@ -215,8 +218,8 @@ for (i in seq_len(nrow(best_words))) {
             next
         }
         
-        # If there are any words that can be made out of the five letters that still remain, add them to the
-        # opener_combinations table.
+        # If there are any words that can be made out of the five letters that still remain, add
+        # them to the opener_combinations table.
         for (k in seq_len(nrow(still_remaining_words))) {
             word_3 <- still_remaining_words$letters[[k]]
             
