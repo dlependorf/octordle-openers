@@ -50,9 +50,21 @@ In English, that regex essentially translates to: look for anything of the form 
 
 The rest of that pipe chain above parses that long list of words into individual words separated by spaces, and there we go, all 10,657 words that are acceptable guesses in Octordle.
 
+The source code also has the list of all possible words that can be the answers to each puzzle, so let's grab that too.
+
+```{r parse_answers}
+octordle_answers <- octordle_source_code %>%
+    str_match('answers\\s=\\s"(.*?)"') %>%
+    pluck(2) %>%
+    str_split(" ") %>%
+    pluck(1)
+
+str(octordle_answers)
+```
+
 ## Finding single opener words
 
-Now that we have the list of allowable Octordle words, let's cut that list down to the words that only contain the 15 most common letters in the set. First, we'll have to split each word up into separate letters. I'm also going to take this opportunity to convert this big character vector into a data frame, so that it's easier to work with.
+Now that we have the list of possible Octordle answers, let's cut that list down to the words that only contain the 15 most common letters in the set. First, we'll have to split each word up into separate letters. I'm also going to take this opportunity to convert those big character vectors into data frames, so that they're easier to work with.
 
 ```{r split_words}
 split_words <- octordle_words %>%
@@ -62,13 +74,17 @@ split_words <- octordle_words %>%
     # five-character vector.
     mutate(letters=map(words, ~str_split(.x, "")[[1]]))
 
-split_words
+split_answers <- octordle_answers %>%
+    tibble(words=.) %>%
+    mutate(letters=map(words, ~str_split(.x, "")[[1]]))
+
+split_answers
 ```
 
 And now, grab that column full of letters and count them.
 
 ```{r best_letters, comment=NA}
-letter_count <- split_words %>%
+letter_count <- split_answers %>%
     unnest(letters) %>%
     count(letters, name="appearances") %>%
     arrange(desc(appearances)) %>%
@@ -91,7 +107,7 @@ best_words
 
 ## Finding opener word combinations
 
-We've now cut the word list down from 10,657 down to 2,331. Now that we have a list of words that contain 5 of the 15 most common letters in the acceptable word list, we need to put them together in three word sets that fit together and contain all 15. There are a lot of really inefficient ways of doing this, and I'm not going to assume that this is the fastest way (a triple cross product of 2,331 times 2,331 times 2,331 rows isn't the easiest thing to deal with!), but here's one way that takes about 15 minutes.
+We've now cut the word list down from 10,657 down to 2,333. Now that we have a list of words that contain 5 of the 15 most common letters in the acceptable word list, we need to put them together in three word sets that fit together and contain all 15. There are a lot of really inefficient ways of doing this, and I'm not going to assume that this is the fastest way (a triple cross product of 2,331 times 2,331 times 2,331 rows isn't the easiest thing to deal with!), but here's one way that takes about 15 minutes.
 
 ```{r the_loop}
 opener_combinations <- tibble(word_1=list(),
@@ -179,7 +195,7 @@ cleaned_openers
 Now, with a tidy dataset to work with, how often does each of the top-15 best letters show up in each position?
 
 ```{r best_letters_positions}
-best_letters_positions <- split_words %>%
+best_letters_positions <- split_answers %>%
     unnest(letters) %>%
     group_by(words) %>%
     mutate(letter_position=row_number()) %>%
