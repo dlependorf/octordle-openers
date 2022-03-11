@@ -230,8 +230,6 @@ best_openers <- cleaned_openers %>%
     summarize(opener=paste(words, collapse="/"), .groups="drop") %>%
     arrange(desc(position_sum))
 
-best_openers %>%
-    filter(position_sum==max(position_sum)) %>%
-    kable()
+best_openers
 ```
-All 28 of these openers are equally good at putting letters in the right place. For my money, the one that's easiest to remember is **CANID/MOLES/PURTY**.
+And there we have it, **DHOLE/PRICY/SAUNT**.

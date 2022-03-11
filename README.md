@@ -73,13 +73,28 @@ The rest of that pipe chain above parses that long list of words into
 individual words separated by spaces, and there we go, all 10,657 words
 that are acceptable guesses in Octordle.
 
+The source code also has the list of all possible words that can be the
+answers to each puzzle, so let’s grab that too.
+
+``` r
+octordle_answers <- octordle_source_code %>%
+    str_match('answers\\s=\\s"(.*?)"') %>%
+    pluck(2) %>%
+    str_split(" ") %>%
+    pluck(1)
+
+str(octordle_answers)
+```
+
+    ##  chr [1:2315] "aback" "abase" "abate" "abbey" "abbot" "abhor" "abide" ...
+
 ## Finding single opener words
 
-Now that we have the list of allowable Octordle words, let’s cut that
+Now that we have the list of possible Octordle answers, let’s cut that
 list down to the words that only contain the 15 most common letters in
 the set. First, we’ll have to split each word up into separate letters.
-I’m also going to take this opportunity to convert this big character
-vector into a data frame, so that it’s easier to work with.
+I’m also going to take this opportunity to convert those big character
+vectors into data frames, so that they’re easier to work with.
 
 ``` r
 split_words <- octordle_words %>%
@@ -89,28 +104,32 @@ split_words <- octordle_words %>%
     # five-character vector.
     mutate(letters=map(words, ~str_split(.x, "")[[1]]))
 
-split_words
+split_answers <- octordle_answers %>%
+    tibble(words=.) %>%
+    mutate(letters=map(words, ~str_split(.x, "")[[1]]))
+
+split_answers
 ```
 
-    ## # A tibble: 10,657 x 2
+    ## # A tibble: 2,315 x 2
     ##    words letters  
     ##    <chr> <list>   
-    ##  1 aahed <chr [5]>
-    ##  2 aalii <chr [5]>
-    ##  3 aargh <chr [5]>
-    ##  4 aarti <chr [5]>
-    ##  5 abaca <chr [5]>
-    ##  6 abaci <chr [5]>
-    ##  7 abacs <chr [5]>
-    ##  8 abaft <chr [5]>
-    ##  9 abaka <chr [5]>
-    ## 10 abamp <chr [5]>
-    ## # ... with 10,647 more rows
+    ##  1 aback <chr [5]>
+    ##  2 abase <chr [5]>
+    ##  3 abate <chr [5]>
+    ##  4 abbey <chr [5]>
+    ##  5 abbot <chr [5]>
+    ##  6 abhor <chr [5]>
+    ##  7 abide <chr [5]>
+    ##  8 abled <chr [5]>
+    ##  9 abode <chr [5]>
+    ## 10 abort <chr [5]>
+    ## # ... with 2,305 more rows
 
 And now, grab that column full of letters and count them.
 
 ``` r
-letter_count <- split_words %>%
+letter_count <- split_answers %>%
     unnest(letters) %>%
     count(letters, name="appearances") %>%
     arrange(desc(appearances)) %>%
@@ -122,21 +141,21 @@ letter_count
     # A tibble: 15 x 2
        letters appearances
        <chr>         <int>
-     1 s              5996
-     2 e              5429
-     3 a              5011
-     4 o              3684
-     5 r              3259
-     6 i              3088
-     7 l              2652
-     8 t              2566
-     9 n              2377
-    10 d              2060
-    11 u              2044
-    12 m              1660
-    13 p              1652
-    14 y              1649
-    15 c              1551
+     1 e              1233
+     2 a               979
+     3 r               899
+     4 o               754
+     5 t               729
+     6 l               719
+     7 i               671
+     8 s               669
+     9 n               575
+    10 c               477
+    11 u               467
+    12 y               425
+    13 d               393
+    14 h               389
+    15 p               367
 
 ``` r
 best_letters <- letter_count$letters
@@ -153,24 +172,24 @@ best_words <- split_words %>%
 best_words
 ```
 
-    ## # A tibble: 2,331 x 2
+    ## # A tibble: 2,233 x 2
     ##    words letters  
     ##    <chr> <list>   
     ##  1 acers <chr [5]>
-    ##  2 acids <chr [5]>
-    ##  3 acidy <chr [5]>
-    ##  4 acmes <chr [5]>
-    ##  5 acned <chr [5]>
-    ##  6 acnes <chr [5]>
-    ##  7 acold <chr [5]>
-    ##  8 acred <chr [5]>
-    ##  9 acres <chr [5]>
-    ## 10 acros <chr [5]>
-    ## # ... with 2,321 more rows
+    ##  2 ached <chr [5]>
+    ##  3 aches <chr [5]>
+    ##  4 acids <chr [5]>
+    ##  5 acidy <chr [5]>
+    ##  6 acned <chr [5]>
+    ##  7 acnes <chr [5]>
+    ##  8 acold <chr [5]>
+    ##  9 acred <chr [5]>
+    ## 10 acres <chr [5]>
+    ## # ... with 2,223 more rows
 
 ## Finding opener word combinations
 
-We’ve now cut the word list down from 10,657 down to 2,331. Now that we
+We’ve now cut the word list down from 10,657 down to 2,333. Now that we
 have a list of words that contain 5 of the 15 most common letters in the
 acceptable word list, we need to put them together in three word sets
 that fit together and contain all 15. There are a lot of really
@@ -258,7 +277,7 @@ cleaned_openers <- opener_combinations %>%
 
 This pivot/unnest combination has transformed this:
 
-    ## # A tibble: 27,154 x 3
+    ## # A tibble: 23,620 x 3
     ##    word_1    word_2    word_3   
     ##    <list>    <list>    <list>   
     ##  1 <chr [5]> <chr [5]> <chr [5]>
@@ -271,11 +290,11 @@ This pivot/unnest combination has transformed this:
     ##  8 <chr [5]> <chr [5]> <chr [5]>
     ##  9 <chr [5]> <chr [5]> <chr [5]>
     ## 10 <chr [5]> <chr [5]> <chr [5]>
-    ## # ... with 27,144 more rows
+    ## # ... with 23,610 more rows
 
 into this:
 
-    ## # A tibble: 407,310 x 4
+    ## # A tibble: 354,300 x 4
     ##    opener_id word_num letters letter_position
     ##        <int> <chr>    <chr>             <int>
     ##  1         1 word_1   a                     1
@@ -284,17 +303,17 @@ into this:
     ##  4         1 word_1   r                     4
     ##  5         1 word_1   s                     5
     ##  6         1 word_2   d                     1
-    ##  7         1 word_2   u                     2
-    ##  8         1 word_2   p                     3
-    ##  9         1 word_2   l                     4
-    ## 10         1 word_2   y                     5
-    ## # ... with 407,300 more rows
+    ##  7         1 word_2   h                     2
+    ##  8         1 word_2   u                     3
+    ##  9         1 word_2   t                     4
+    ## 10         1 word_2   i                     5
+    ## # ... with 354,290 more rows
 
 Now, with a tidy dataset to work with, how often does each of the top-15
 best letters show up in each position?
 
 ``` r
-best_letters_positions <- split_words %>%
+best_letters_positions <- split_answers %>%
     unnest(letters) %>%
     group_by(words) %>%
     mutate(letter_position=row_number()) %>%
@@ -309,16 +328,16 @@ best_letters_positions
     ## # A tibble: 75 x 3
     ##    letters letter_position position_count
     ##    <chr>             <int>          <int>
-    ##  1 a                     1            596
-    ##  2 a                     2           1959
-    ##  3 a                     3            929
-    ##  4 a                     4            911
-    ##  5 a                     5            616
-    ##  6 c                     1            724
-    ##  7 c                     2            136
-    ##  8 c                     3            336
-    ##  9 c                     4            259
-    ## 10 c                     5             96
+    ##  1 a                     1            141
+    ##  2 a                     2            304
+    ##  3 a                     3            307
+    ##  4 a                     4            163
+    ##  5 a                     5             64
+    ##  6 c                     1            198
+    ##  7 c                     2             40
+    ##  8 c                     3             56
+    ##  9 c                     4            152
+    ## 10 c                     5             31
     ## # ... with 65 more rows
 
 ``` r
@@ -348,42 +367,22 @@ best_openers <- cleaned_openers %>%
     summarize(opener=paste(words, collapse="/"), .groups="drop") %>%
     arrange(desc(position_sum))
 
-best_openers %>%
-    filter(position_sum==max(position_sum)) %>%
-    kable()
+best_openers
 ```
 
-| opener_id | position_sum | opener            |
-|----------:|-------------:|:------------------|
-|      3135 |        18454 | CALID/MONTY/PURES |
-|      3145 |        18454 | CALID/MORES/PUNTY |
-|      3152 |        18454 | CALID/MURES/PONTY |
-|      4103 |        18454 | CANID/MOLES/PURTY |
-|      4112 |        18454 | CANID/MULES/PORTY |
-|      4113 |        18454 | CANID/MULEY/PORTS |
-|      4283 |        18454 | CANTS/MURID/POLEY |
-|      4390 |        18454 | CANTY/MOLED/PURIS |
-|      4413 |        18454 | CANTY/MURED/POLIS |
-|      4415 |        18454 | CANTY/MURID/POLES |
-|      4980 |        18454 | CARED/MONTY/PULIS |
-|      8844 |        18454 | COLED/MANIS/PURTY |
-|      8845 |        18454 | COLED/MANTY/PURIS |
-|      8910 |        18454 | COLES/MARID/PUNTY |
-|      8914 |        18454 | COLES/MURID/PANTY |
-|      8942 |        18454 | COLEY/MARID/PUNTS |
-|      8953 |        18454 | COLEY/MURID/PANTS |
-|      9480 |        18454 | CONED/MALIS/PURTY |
-|      9481 |        18454 | CONED/MALTY/PURIS |
-|     10160 |        18454 | CORED/MALIS/PUNTY |
-|     10162 |        18454 | CORED/MANTY/PULIS |
-|     12526 |        18454 | CULTS/MARID/PONEY |
-|     12619 |        18454 | CULTY/MANIS/PORED |
-|     12626 |        18454 | CULTY/MARID/PONES |
-|     13165 |        18454 | CUNTS/MARID/POLEY |
-|     13650 |        18454 | CURED/MALIS/PONTY |
-|     13656 |        18454 | CURED/MANTY/POLIS |
-|     13672 |        18454 | CURED/MONTY/PALIS |
+    ## # A tibble: 23,620 x 3
+    ##    opener_id position_sum opener           
+    ##        <int>        <int> <chr>            
+    ##  1     13321         3546 DHOLE/PRICY/SAUNT
+    ##  2      4462         3538 CHILE/DRANT/SOUPY
+    ##  3     10064         3531 CRUET/POIND/SHALY
+    ##  4      9312         3524 CRAPY/DHOLE/SUINT
+    ##  5      7497         3476 COADY/PRUNT/SHIEL
+    ##  6      5318         3467 CHODE/PARLY/SUINT
+    ##  7     11399         3448 CURET/POIND/SHALY
+    ##  8      6758         3447 CLARY/POIND/SHUTE
+    ##  9     15749         3443 DUNCH/PRATE/SOILY
+    ## 10      3749         3434 CHAPE/DRONY/SLUIT
+    ## # ... with 23,610 more rows
 
-All 28 of these openers are equally good at putting letters in the right
-place. For my money, the one that’s easiest to remember is
-**CANID/MOLES/PURTY**.
+And there we have it, **DHOLE/PRICY/SAUNT**.
