@@ -48,7 +48,7 @@ str(octordle_words)
 
 In English, that regex essentially translates to: look for anything of the form `allowed = "stuff"` and grab the stuff in between the quotes. That question mark inside of the parentheses capture group tells the regex engine to be lazy about it--in other words, grab the shortest possible match surrounded by quotes, and not to match, say, an ending quotation mark 50 lines later.
 
-The rest of that pipe chain above parses that long list of words into individual words separated by spaces, and there we go, all 10,657 words that are acceptable guesses in Octordle.
+The rest of that pipe chain above parses that long list of words into individual words separated by spaces, and there we go, all `r scales::comma(length(octordle_words))` words that are acceptable guesses in Octordle.
 
 The source code also has the list of all possible words that can be the answers to each puzzle, so let's grab that too.
 
@@ -107,7 +107,7 @@ best_words
 
 ## Finding opener word combinations
 
-We've now cut the word list down from 10,657 down to 2,333. Now that we have a list of words that contain 5 of the 15 most common letters in the acceptable word list, we need to put them together in three word sets that fit together and contain all 15. There are a lot of really inefficient ways of doing this, and I'm not going to assume that this is the fastest way (a triple cross product of 2,331 times 2,331 times 2,331 rows isn't the easiest thing to deal with!), but here's one way that takes about 15 minutes.
+We've now cut the word list down from `r scales::comma(length(octordle_words))` down to `r scales::comma(nrow(best_words))`. Now that we have a list of words that contain 5 of the 15 most common letters in the acceptable word list, we need to put them together in three word sets that fit together and contain all 15. There are a lot of really inefficient ways of doing this, and I'm not going to assume that this is the fastest way (a triple cross product of `r scales::comma(nrow(best_words))` times `r scales::comma(nrow(best_words))` times `r scales::comma(nrow(best_words))` isn't the easiest thing to deal with!), but here's one way that takes about 15 minutes.
 
 ```{r the_loop}
 opener_combinations <- tibble(word_1=list(),
@@ -164,7 +164,7 @@ for (i in seq_len(nrow(best_words))) {
 
 # Cutting the list down
 
-Huh, there are way more valid three word combinations that have all 15 of the most common letters than I thought: 27,154. These openers aren't all equally useful, though, because Wordle is about more than just identifying letters, it's about putting them in the right places. So if all 27,154 of these words are equally good at covering letters, we can rank them by how often they put letters in the right places.
+Huh, there are way more valid three word combinations that have all 15 of the most common letters than I thought: `r scales::comma(nrow(opener_combinations))`. These openers aren't all equally useful, though, because Wordle is about more than just identifying letters, it's about putting them in the right places. So if all `r scales::comma(nrow(opener_combinations))` of these words are equally good at covering letters, we can rank them by how often they put letters in the right places.
 
 We'll need to find out how often those best letters are in each position, but first, let's tidy up `opener_combinations` a bit.
 
@@ -213,8 +213,7 @@ ggplot(best_letters_positions) +
     facet_wrap(~letters, nrow=3)
 ```
 
-
-We have everything we need. Let's grab our cleaned dataframe of opening word combinations, join to the above table with data on how often each letter shows up in each position, and rank the 27,154 combinations to find the ones that get the letters in the right positions the most.
+We have everything we need. Let's grab our cleaned dataframe of opening word combinations, join to the above table with data on how often each letter shows up in each position, and rank the `r scales::comma(nrow(opener_combinations))` combinations to find the ones that get the letters in the right positions the most.
 
 ```{r best_openers}
 best_openers <- cleaned_openers %>%
@@ -232,4 +231,5 @@ best_openers <- cleaned_openers %>%
 
 best_openers
 ```
+
 And there we have it, **DHOLE/PRICY/SAUNT**.

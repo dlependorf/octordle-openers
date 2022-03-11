@@ -189,14 +189,14 @@ best_words
 
 ## Finding opener word combinations
 
-We’ve now cut the word list down from 10,657 down to 2,333. Now that we
+We’ve now cut the word list down from 10,657 down to 2,233. Now that we
 have a list of words that contain 5 of the 15 most common letters in the
 acceptable word list, we need to put them together in three word sets
 that fit together and contain all 15. There are a lot of really
 inefficient ways of doing this, and I’m not going to assume that this is
-the fastest way (a triple cross product of 2,331 times 2,331 times 2,331
-rows isn’t the easiest thing to deal with!), but here’s one way that
-takes about 15 minutes.
+the fastest way (a triple cross product of 2,233 times 2,233 times 2,233
+isn’t the easiest thing to deal with!), but here’s one way that takes
+about 15 minutes.
 
 ``` r
 opener_combinations <- tibble(word_1=list(),
@@ -254,10 +254,10 @@ for (i in seq_len(nrow(best_words))) {
 # Cutting the list down
 
 Huh, there are way more valid three word combinations that have all 15
-of the most common letters than I thought: 27,154. These openers aren’t
+of the most common letters than I thought: 23,620. These openers aren’t
 all equally useful, though, because Wordle is about more than just
 identifying letters, it’s about putting them in the right places. So if
-all 27,154 of these words are equally good at covering letters, we can
+all 23,620 of these words are equally good at covering letters, we can
 rank them by how often they put letters in the right places.
 
 We’ll need to find out how often those best letters are in each
@@ -350,7 +350,7 @@ ggplot(best_letters_positions) +
 
 We have everything we need. Let’s grab our cleaned dataframe of opening
 word combinations, join to the above table with data on how often each
-letter shows up in each position, and rank the 27,154 combinations to
+letter shows up in each position, and rank the 23,620 combinations to
 find the ones that get the letters in the right positions the most.
 
 ``` r
