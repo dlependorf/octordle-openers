@@ -386,3 +386,100 @@ best_openers
     ## # ... with 23,610 more rows
 
 And there we have it, **DHOLE/PRICY/SAUNT**.
+
+## Well, sort of, two of those are hardly even words!
+
+Yeah…fair. A dhole is apparently an Asian wild dog, and saunt is
+supposedly an archaic term for a saint. This opener works, but it kind
+of feels a little bit like cheating, doesn’t it? Let’s repeat the same
+process just across the common words that are in the list of possible
+answers.
+
+``` r
+best_words <- split_answers %>%
+    filter(map_lgl(letters, ~all(.x %in% best_letters)),
+           map_int(letters, ~max(table(.x)))==1)
+
+opener_combinations <- tibble(word_1=list(),
+                                     word_2=list(),
+                                     word_3=list())
+
+for (i in seq_len(nrow(best_words))) {
+    word_1 <- best_words$letters[[i]]
+    
+    remaining_letters <- best_letters[!best_letters %in% word_1]
+    remaining_words <- best_words %>%
+        filter(row_number() > i,
+               map_lgl(letters, ~all(.x %in% remaining_letters)))
+    
+    if (nrow(remaining_words)==0) {
+        next
+    }
+    
+    for (j in seq_len(nrow(remaining_words))) {
+        word_2 <- remaining_words$letters[[j]]
+        
+        still_remaining_letters <- remaining_letters[!remaining_letters %in% word_2]
+        still_remaining_words <- remaining_words %>%
+            filter(row_number() > j,
+                   map_lgl(letters, ~all(.x %in% still_remaining_letters)))
+        
+        if (nrow(still_remaining_words)==0) {
+            next
+        }
+        
+        for (k in seq_len(nrow(still_remaining_words))) {
+            word_3 <- still_remaining_words$letters[[k]]
+            
+            opener_combinations <- tibble(word_1=list(word_1),
+                                                 word_2=list(word_2),
+                                                 word_3=list(word_3)) %>%
+                bind_rows(opener_combinations, .)
+        }
+    }
+}
+
+opener_combinations <- bind_rows(opener_combinations)
+
+cleaned_openers <- opener_combinations %>%
+    mutate(opener_id=row_number(), .before="word_1") %>%
+    pivot_longer(cols=starts_with("word"),
+                 names_to="word_num",
+                 values_to="letters") %>%
+    unnest(letters) %>%
+    group_by(opener_id, word_num) %>%
+    mutate(letter_position=row_number()) %>%
+    ungroup()
+
+best_openers <- cleaned_openers %>%
+    left_join(best_letters_positions, by=c("letters", "letter_position")) %>%
+    mutate(position_count=if_else(is.na(position_count), 0L, position_count)) %>%
+    group_by(opener_id) %>%
+    summarize(position_sum=sum(position_count)) %>%
+    arrange(desc(position_sum)) %>%
+    inner_join(cleaned_openers, by=c("opener_id")) %>%
+    group_by(opener_id, position_sum, word_num) %>%
+    summarize(words=toupper(paste(letters, collapse="")), .groups="drop") %>%
+    group_by(opener_id, position_sum) %>%
+    summarize(opener=paste(words, collapse="/"), .groups="drop") %>%
+    arrange(desc(position_sum))
+
+best_openers
+```
+
+    ## # A tibble: 455 x 3
+    ##    opener_id position_sum opener           
+    ##        <int>        <int> <chr>            
+    ##  1       230         3505 CURLY/POINT/SHADE
+    ##  2       219         3476 CRUEL/POINT/SHADY
+    ##  3       196         3466 COUNT/PLIER/SHADY
+    ##  4       161         3459 CLOUT/DRAPE/SHINY
+    ##  5       188         3416 COULD/PARTY/SHINE
+    ##  6       223         3397 CRUST/DAILY/PHONE
+    ##  7       194         3353 COUNT/HARPY/SLIDE
+    ##  8       368         3349 HOUND/PRICE/SALTY
+    ##  9       156         3337 CLOUD/PARTY/SHINE
+    ## 10       365         3334 HOUND/PARTY/SLICE
+    ## # ... with 445 more rows
+
+There we go, **CURLY/POINT/SHADE**.
