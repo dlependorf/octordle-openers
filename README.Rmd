@@ -28,10 +28,18 @@ octordle_source_code <- octordle_url %>%
     content("text")
 ```
 
-Most of this is a bunch of code that we don't need, but take a look at line 856:
+Most of this is a bunch of code that we don't need, but take a look at line 901:
 
-```{r js_example, echo=FALSE, comment=NA}
-cat(str_sub(octordle_source_code, start=38892, end=39175))
+```{js source_code_snippet, eval=TRUE}
+function output(obj1) {
+    append(acquire("out"), el("p", text(obj1)));
+}
+
+function remove(arr, term) {
+    if (arr.indexOf(term) !== -1) arr.splice(arr.indexOf(term), 1);
+}
+
+allowed = "aahed aalii aargh aarti abaca abaci abacs abaft abaka abamp aband abash abask abaya abbas
 ```
 
 There's a big list of words that's prefaced by `allowed =` and surrounded by quotes. We can use some fairly simple regex to extract that list out from the rest of this.

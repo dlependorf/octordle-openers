@@ -34,22 +34,19 @@ octordle_source_code <- octordle_url %>%
 ```
 
 Most of this is a bunch of code that we don’t need, but take a look at
-line 856:
+line 901:
 
-    dColor = s ? color : bgcolor;
-        out.appendChild(tx);
-    }
+``` js
+function output(obj1) {
+    append(acquire("out"), el("p", text(obj1)));
+}
 
-    function printclass(out, t, c) {
-        tx = document.createElement("span");
-        tx.innerHTML = t;
-        console.log(c);
-        tx.className = c;
-        console.log(tx);
-        out.appendChild(tx);
-    }
+function remove(arr, term) {
+    if (arr.indexOf(term) !== -1) arr.splice(arr.indexOf(term), 1);
+}
 
-    function append(out, t) {
+allowed = "aahed aalii aargh aarti abaca abaci abacs abaft abaka abamp aband abash abask abaya abbas
+```
 
 There’s a big list of words that’s prefaced by `allowed =` and
 surrounded by quotes. We can use some fairly simple regex to extract
