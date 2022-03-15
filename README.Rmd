@@ -3,7 +3,7 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo=TRUE)
+knitr::opts_chunk$set(echo=TRUE, fig.height=6, dpi=160)
 ```
 
 I know I know, a million people have already "solved" the best starting word for Wordle. But for that multiplying series of simultaneous Dordle/Quordle/Octordle/Secordle/whatever variants, it seems to me that as the number of puzzles grows, the more important it is to cover the field as broadly as possible, that is, start with a two or even a three word opener that covers all of the 15 most common letters, with no duplicates. Can we figure out what the best three word opener is?
@@ -210,7 +210,11 @@ best_letters_positions
 ```{r best_letters_positions_viz}
 ggplot(best_letters_positions) +
     geom_col(aes(x=letter_position, y=position_count)) +
-    facet_wrap(~letters, nrow=3)
+    facet_wrap(~letters, nrow=3) +
+    scale_x_continuous("Letter Position") +
+    scale_y_continuous("Letter Occurrences") +
+    theme(panel.grid.minor=element_blank()) +
+    ggtitle(label="How Often Do Letters Appear in Octordle Solutions?")
 ```
 
 We have everything we need. Let's grab our cleaned dataframe of opening word combinations, join to the above table with data on how often each letter shows up in each position, and rank the `r scales::comma(nrow(opener_combinations))` combinations to find the ones that get the letters in the right positions the most.

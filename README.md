@@ -36,15 +36,20 @@ octordle_source_code <- octordle_url %>%
 Most of this is a bunch of code that we don’t need, but take a look at
 line 856:
 
-    function output(obj1) {
-        append(acquire("out"), el("p", text(obj1)));
+    dColor = s ? color : bgcolor;
+        out.appendChild(tx);
     }
 
-    function remove(arr, term) {
-        if (arr.indexOf(term) !== -1) arr.splice(arr.indexOf(term), 1);
+    function printclass(out, t, c) {
+        tx = document.createElement("span");
+        tx.innerHTML = t;
+        console.log(c);
+        tx.className = c;
+        console.log(tx);
+        out.appendChild(tx);
     }
 
-    allowed = "aahed aalii aargh aarti abaca abaci abacs abaft abaka abamp aband abash abask abaya abbas
+    function append(out, t) {
 
 There’s a big list of words that’s prefaced by `allowed =` and
 surrounded by quotes. We can use some fairly simple regex to extract
@@ -343,7 +348,11 @@ best_letters_positions
 ``` r
 ggplot(best_letters_positions) +
     geom_col(aes(x=letter_position, y=position_count)) +
-    facet_wrap(~letters, nrow=3)
+    facet_wrap(~letters, nrow=3) +
+    scale_x_continuous("Letter Position") +
+    scale_y_continuous("Letter Occurrences") +
+    theme(panel.grid.minor=element_blank()) +
+    ggtitle(label="How Often Do Letters Appear in Octordle Solutions?")
 ```
 
 ![](README_files/figure-gfm/best_letters_positions_viz-1.png)<!-- -->
