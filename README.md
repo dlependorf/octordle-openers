@@ -1,11 +1,12 @@
 
 I know I know, a million people have already “solved” the best starting
 word for Wordle. But for that multiplying series of simultaneous
-Dordle/Quordle/Octordle/Secordle/whatever variants, it seems to me that
-as the number of puzzles grows, the more important it is to cover the
-field as broadly as possible, that is, start with a two or even a three
-word opener that covers all of the 15 most common letters, with no
-duplicates. Can we figure out what the best three word opener is?
+[Dordle](https://zaratustra.itch.io/dordle)/[Quordle](https://www.quordle.com/)/[Octordle](https://octordle.com/)/[Secordle](http://www.sedecordle.com/)/whatever
+variants, it seems to me that as the number of puzzles grows, the more
+important it is to cover the field as broadly as possible, that is,
+start with a two or even a three word opener that covers all of the 15
+most common letters, with no duplicates. Can we figure out what the best
+three word opener is?
 
 ## Grabbing the right list of words
 
@@ -488,4 +489,5 @@ best_openers
     ## 10       365         3334 HOUND/PARTY/SLICE
     ## # ... with 445 more rows
 
-There we go, **CURLY/POINT/SHADE**.
+There we go, **CURLY/POINT/SHADE**. Go beat
+[Octordle](https://octordle.com/) with it.

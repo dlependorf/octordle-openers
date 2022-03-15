@@ -6,7 +6,7 @@ output: github_document
 knitr::opts_chunk$set(echo=TRUE, fig.height=6, dpi=160)
 ```
 
-I know I know, a million people have already "solved" the best starting word for Wordle. But for that multiplying series of simultaneous Dordle/Quordle/Octordle/Secordle/whatever variants, it seems to me that as the number of puzzles grows, the more important it is to cover the field as broadly as possible, that is, start with a two or even a three word opener that covers all of the 15 most common letters, with no duplicates. Can we figure out what the best three word opener is?
+I know I know, a million people have already "solved" the best starting word for Wordle. But for that multiplying series of simultaneous [Dordle](https://zaratustra.itch.io/dordle)/[Quordle](https://www.quordle.com/)/[Octordle](https://octordle.com/)/[Secordle](http://www.sedecordle.com/)/whatever variants, it seems to me that as the number of puzzles grows, the more important it is to cover the field as broadly as possible, that is, start with a two or even a three word opener that covers all of the 15 most common letters, with no duplicates. Can we figure out what the best three word opener is?
 
 ## Grabbing the right list of words
 
@@ -321,4 +321,4 @@ best_openers <- cleaned_openers %>%
 
 best_openers
 ```
-There we go, **CURLY/POINT/SHADE**.
+There we go, **CURLY/POINT/SHADE**. Go beat [Octordle](https://octordle.com/) with it.
